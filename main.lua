@@ -33,6 +33,9 @@ y = 2
 print_debug = false
 print_notice = true
 change_image = false
+
+last_mem = nil
+
 while true do
    clear()
 
@@ -40,13 +43,13 @@ while true do
    if btnp(2) then
       print_debug = true
    end
-   
+
    if print_notice and (btnp(4) or btnp(5) or btnp(6) or btnp(7)) then
       print_notice = false
-      erase_print("Press arrow buttons", 1, 4)      
+      erase_print("Press arrow buttons", 1, 4)
    end
 
-   -- if unpressed
+   -- -- if unpressed
    if btnnp(2) then
       print_debug = false
       erase_print('RAM:00000Kb', 1, 16)
@@ -79,7 +82,18 @@ while true do
 
    if print_debug then
       -- Ram usage
-      print('RAM:' .. tostring(collectgarbage("count") * 1024):sub(1,-3) .. 'Kb', 1, 16)
+      local mem = collectgarbage("count")
+
+      if mem ~= last_mem then
+         last_mem_string = 'RAM:' .. tostring(mem * 1024):sub(1,-3) .. 'Kb'
+
+         -- next: clean up garbage created by string concat, otherwise last_mem will
+         -- again not equal mem at the next loop iteration, because we have
+         -- added garbage since the last collectgarbage() call.
+         last_mem = collectgarbage("count")
+      end
+
+      print(last_mem_string, 1, 16)
    end
 
    display()
